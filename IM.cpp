@@ -1,5 +1,6 @@
 // INFLUENCE MAXIMIZATION WITH LIMITED BUDGET
 #include<bits/stdc++.h>
+#include <unordered_set>
 using namespace std;
 struct KOL {
     string name;
@@ -85,7 +86,14 @@ struct Solution{
     float minMoneyKOLChuaThue(){
         auto firstIT = min_element(KOLChuaThue.begin(), KOLChuaThue.end(), compareMoney); 
         return firstIT->money;
-
+    }
+    void resetScore(){
+        nguoiTiepCan.clear();
+        for(int i=0; i<KOLDaThue.size(); i++){
+            for(auto c: KOLDaThue[i].followerSet){
+                nguoiTiepCan.insert(c);
+            }
+        }
     }
 
     Solution(){}
@@ -154,42 +162,42 @@ Solution localSearch(Solution firstSolution) {
     Solution bestSolution = firstSolution;
     bool check = true;
     int count = 0;            
-    
     while (check) {
-        check = false;
         count++;
+        check = false;
         for (int i = 0; i < bestSolution.KOLDaThue.size(); i++) {
             Solution currentSolution = bestSolution;
-            
             KOL removedKOL = currentSolution.KOLDaThue[i];
             currentSolution.KOLDaThue.erase(currentSolution.KOLDaThue.begin() + i);
             currentSolution.tienConLai += removedKOL.money;
-            
+            currentSolution.resetScore();
             for (int j = 0; j < currentSolution.KOLChuaThue.size(); j++) {
                 KOL addedKOL = currentSolution.KOLChuaThue[j];
-                
                 if (currentSolution.tienConLai >= addedKOL.money) {
                     currentSolution.thueKOL(addedKOL, j);
                     
                     if (currentSolution.getScore() > bestSolution.getScore()) {
                         bestSolution = currentSolution;
-                        count = true;
+                        check = true;
                     }
                     
                     currentSolution.KOLDaThue.pop_back();
                     currentSolution.KOLChuaThue.insert(currentSolution.KOLChuaThue.begin() + j, addedKOL);
                     currentSolution.tienConLai -= addedKOL.money;
+                    currentSolution.resetScore();
                 }
             }
         }
     }
-    cout << "So lan chay localsearch" << count << endl;
+    cout << "So lan chay localsearch: " << count << endl;
     return bestSolution;
 }
 
 int main (){
-    Input io("database/output1.txt");
+    Input io("database/output11.txt");
+//    greedySolution(io).printSolution();
  //   localSearch(greedySolution(io)).printSolution();
-//    localSearch(UnGreedySolution(io)).printSolution();
-    localSearch(generateRandomSolution(io)).printSolution();
+        UnGreedySolution(io).printSolution();
+    localSearch(UnGreedySolution(io)).printSolution();
+//    localSearch(generateRandomSolution(io)).printSolution();
     }
